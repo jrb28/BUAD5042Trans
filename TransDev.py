@@ -8,8 +8,8 @@ Created on Sun Mar 19 21:24:59 2017
 import MySQLdb as mySQL 
 #import datetime
 
-mysql_user_name =  'Jim'
-mysql_password = 'MySQL'
+mysql_user_name =  'user_name'
+mysql_password = 'passwordL'
 mysql_ip = '127.0.0.1'
 mysql_db = 'assign'
 
