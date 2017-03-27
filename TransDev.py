@@ -9,7 +9,7 @@ import MySQLdb as mySQL
 #import datetime
 
 mysql_user_name =  'user_name'
-mysql_password = 'passwordL'
+mysql_password = 'password'
 mysql_ip = '127.0.0.1'
 mysql_db = 'assign'
 
