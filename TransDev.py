@@ -8,7 +8,7 @@ Created on Sun Mar 19 21:24:59 2017
 import MySQLdb as mySQL 
 #import datetime
 
-mysql_user_name =  'user_name'
+mysql_user_name =  'username'
 mysql_password = 'password'
 mysql_ip = '127.0.0.1'
 mysql_db = 'assign'
@@ -161,7 +161,12 @@ def checkUniqueAssign(store_ids,dc_ids,result):
             
     return err_dc_key or err_store_key or err_mult_assign or err_store_not_assign, err_mess
     
-      
+def calcAnnualMiles(stores_vol,dist,result):    #dist key = (dc,store); result tuples (store,dc)
+    tot_miles = 0.0
+    stores_vol_dict = dict(stores_vol)
+    for assign in result:
+        tot_miles += stores_vol_dict[assign[0]] / trail_cu_ft * dist[assign[1],assign[0]] * num_days_year
+    return tot_miles      
             
             
             
@@ -179,6 +184,10 @@ for problem_id in problems:
     
     okStoresAssigned, err_mess = checkUniqueAssign(store_ids,dc_ids,result)
     okCap = checkDCCap(dcs,stores_vol,result)
+    if not (okCap and okStoresAssigned):
+        obj = calcAnnualMiles(stores_vol,dist,result)
+    else:
+        obj = 99999999999999999.0
     if silent_mode:
         if okStoresAssigned or okCap:
             print "P",problem_id," error: " 
@@ -187,7 +196,7 @@ for problem_id in problems:
             if not okCap:
                 print '; exceeded DC capacity'
         else:
-            print "P",problem_id,"ok"
+            print "P",problem_id,"OK, annual miles:", obj
     else:
         if okStoresAssigned or okCap:
             print "Problem",problem_id," error: " 
@@ -197,7 +206,7 @@ for problem_id in problems:
             if not okCap:
                 print 'DC capacity exceeded'
         else:
-            print "Problem",problem_id," OK"
+            print "Problem",problem_id," OK, annual miles:", obj
             
             
 
