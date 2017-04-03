@@ -184,26 +184,26 @@ for problem_id in problems:
     
     okStoresAssigned, err_mess = checkUniqueAssign(store_ids,dc_ids,result)
     okCap = checkDCCap(dcs,stores_vol,result)
-    if not (okCap and okStoresAssigned):
+    if not okCap and not okStoresAssigned:
         obj = calcAnnualMiles(stores_vol,dist,result)
     else:
         obj = 99999999999999999.0
     if silent_mode:
         if okStoresAssigned or okCap:
             print "P",problem_id," error: " 
-            if not okStoresAssigned:
+            if okStoresAssigned:
                 print '; error with keys or multiple assignment'
-            if not okCap:
+            if okCap:
                 print '; exceeded DC capacity'
         else:
             print "P",problem_id,"OK, annual miles:", obj
     else:
         if okStoresAssigned or okCap:
             print "Problem",problem_id," error: " 
-            if not okStoresAssigned:
+            if okStoresAssigned:
                 print 'either with keys or assignment of stores to multiple DCs'
                 print err_mess
-            if not okCap:
+            if okCap:
                 print 'DC capacity exceeded'
         else:
             print "Problem",problem_id," OK, annual miles:", obj
