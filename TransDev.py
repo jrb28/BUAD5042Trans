@@ -5,8 +5,7 @@ Created on Sun Mar 19 21:24:59 2017
 @author: jrbrad
 """
 
-import MySQLdb as mySQL 
-#import datetime
+import mysql.connector as mySQL 
 
 mysql_user_name =  'username'
 mysql_password = 'password'
@@ -16,77 +15,68 @@ mysql_db = 'assign'
 trail_cu_ft = 4000.0
 num_days_year = 365.0
 
-def db_get_data(problem_id):
-    cnx = db_connect()
-                        
-    cursor = cnx.cursor()
-    cursor.execute("CALL spGetBinpackCap(%s);" % problem_id)
-    bin_cap = cursor.fetchall()[0][0]
-    cursor.close()
-    cursor = cnx.cursor()
-    cursor.execute("CALL spGetBinpackData(%s);" % problem_id)
-    items = {}
-    blank = cursor.fetchall()
-    for row in blank:
-        items[row[0]] = row[1]
-    cursor.close()
-    cnx.close()
-    return bin_cap, items
-
-def getDBDataList(commandString):
+def getDBDataList(proc,args):
     cnx = db_connect()
     cursor = cnx.cursor()
-    cursor.execute(commandString)
+    cursor.callproc(proc,args)
     items = []
-    for item in list(cursor):
-        sub_list = []
-        for ele in item:
-            sub_list.append(ele)
-        items.append(sub_list)
+    for result in cursor.stored_results():
+        for item in result.fetchall():
+            sub_list = []
+            for ele in item:
+                sub_list.append(ele)
+            items.append(sub_list)
+        break
     cursor.close()
     cnx.close()
     return items
     
-def getDBDataListEle(commandString):
+def getDBDataListEle(proc,args):
     cnx = db_connect()
     cursor = cnx.cursor()
-    cursor.execute(commandString)
+    cursor.callproc(proc,args=args)
     items = []
-    for item in list(cursor):
-        items.append(item[0])
+    for result in cursor.stored_results():
+        for item in result.fetchall():
+            items.append(item[0])
+        break
     cursor.close()
     cnx.close()
     return items
     
-def getDBDataDictEle(commandString):
+def getDBDataDictEle(proc,args):
     cnx = db_connect()
     cursor = cnx.cursor()
-    cursor.execute(commandString)
+    cursor.callproc(proc,args=args)
     items = {}
-    for item in list(cursor):
-        items[item[0]] = item[1]
+    for result in cursor.stored_results():
+        for item in result.fetchall():
+            items[item[0]] = item[1]
+        break
     cursor.close()
     cnx.close()
     return items
     
-def getDBDataDict(commandString):
+def getDBDataDict(proc,args):
     cnx = db_connect()
     cursor = cnx.cursor()
-    cursor.execute(commandString)
+    cursor.callproc(proc,args)
     items = {}
-    for item in list(cursor):
-        items[item[0]] = item[1:len(item)]
+    for result in cursor.stored_results():
+        for item in result.fetchall():
+            items[item[0]] = item[1:len(item)]
     cursor.close()
     cnx.close()
     return items
     
-def getDBDataDictTup(commandString):
+def getDBDataDictTup(proc,args):
     cnx = db_connect()
     cursor = cnx.cursor()
-    cursor.execute(commandString)
+    cursor.callproc(proc,args)
     items = {}
-    for item in list(cursor):
-        items[(item[0],item[1])] = item[2]
+    for result in cursor.stored_results():
+        for item in result.fetchall():
+            items[(item[0],item[1])] = item[2]
     cursor.close()
     cnx.close()
     return items
@@ -171,16 +161,22 @@ def calcAnnualMiles(stores_vol,dist,result):    #dist key = (dc,store); result t
             
             
 silent_mode = False
-problems = getDBDataListEle('CALL spGetProblemIds();')
+problems = getDBDataListEle('spGetProblemIds',[])
 for problem_id in problems:
+    dist = getDBDataDictTup('spGetDist', [problem_id])          # Key: (DC id, Store ID),  Value: distance
+    dcs = getDBDataDict('spGetDcs', [problem_id])               # SELECT id, cap_cubic_feet, cap_doors, cap_drivers 
+    stores_vol = getDBDataList('spGetStores', [problem_id])     # SELECT id, vol_daily
+    store_ids = getDBDataListEle('spGetStoreIDs', [problem_id])  # Creates a list of store_id keys
+    dc_ids = getDBDataListEle('spGetDCIDs', [problem_id])        # creates a list if dc_id keys
+    """
     dist = getDBDataDictTup('CALL spGetDist(%s);' % str(problem_id))          # Key: (DC id, Store ID),  Value: distance
     dcs = getDBDataDict('CALL spGetDcs(%s);' % str(problem_id))               # SELECT id, cap_cubic_feet, cap_doors, cap_drivers 
     stores_vol = getDBDataList('CALL spGetStores(%s);' % str(problem_id))     # SELECT id, vol_daily
     store_ids = getDBDataListEle('CALL spGetStoreIDs(%s)' % str(problem_id))  # Creates a list of store_id keys
     dc_ids = getDBDataListEle('CALL spGetDCIDs(%s)' % str(problem_id))        # creates a list if dc_id keys
-    
+    """
     my_team_or_name, result = trans(dist, dcs, stores_vol)
-    print result
+    print(result)
     
     okStoresAssigned, err_mess = checkUniqueAssign(store_ids,dc_ids,result)
     okCap = checkDCCap(dcs,stores_vol,result)
@@ -190,23 +186,23 @@ for problem_id in problems:
         obj = 99999999999999999.0
     if silent_mode:
         if okStoresAssigned or okCap:
-            print "P",problem_id," error: " 
+            print("P",problem_id," error: ")
             if okStoresAssigned:
-                print '; error with keys or multiple assignment'
+                print('; error with keys or multiple assignment')
             if okCap:
-                print '; exceeded DC capacity'
+                print('; exceeded DC capacity')
         else:
-            print "P",problem_id,"OK, annual miles:", obj
+            print("P",problem_id,"OK, annual miles:", obj)
     else:
         if okStoresAssigned or okCap:
-            print "Problem",problem_id," error: " 
+            print("Problem",problem_id," error: ")
             if okStoresAssigned:
-                print 'either with keys or assignment of stores to multiple DCs'
-                print err_mess
+                print('either with keys or assignment of stores to multiple DCs')
+                print(err_mess)
             if okCap:
-                print 'DC capacity exceeded'
+                print('DC capacity exceeded')
         else:
-            print "Problem",problem_id," OK, annual miles:", obj
+            print("Problem",problem_id," OK, annual miles:", obj)
             
             
 
