@@ -7,10 +7,14 @@ Created on Sun Mar 19 21:24:59 2017
 
 import mysql.connector as mySQL 
 
-mysql_user_name =  'username'
-mysql_password = 'password'
+mysql_user_name =  'XXX'
+mysql_password = 'XXX'
 mysql_ip = '127.0.0.1'
 mysql_db = 'assign'
+
+trail_cu_ft = 4000.0
+num_days_year = 365.0
+
 
 def getDBDataList(proc,args):
     cnx = db_connect()
@@ -87,14 +91,14 @@ def trans(dist, dcs, stores_vol):
     trail_cu_ft = 4000.0
     num_days_year = 365.0
 
-    my_team_or_name = "xxx"
+    my_username = "xxx"
     result = []
     
-    """
-    Put your algorithm here
-    """
+    """ Start your algorithm below this comment  """
+    
+    """ End your algorithm above this comment  """
             
-    return my_team_or_name, result
+    return my_username, result
     
 def checkDCCap(dcs,stores_vol,result):
     checkit = {}
