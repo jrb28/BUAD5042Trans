@@ -91,14 +91,15 @@ def trans(dist, dcs, stores_vol):
     trail_cu_ft = 4000.0
     num_days_year = 365.0
 
-    my_username = "xxx"
+    my_username = 'xxx'
+    my_nickname = 'xxx'
     result = []
     
     """ Start your algorithm below this comment  """
     
     """ End your algorithm above this comment  """
             
-    return my_username, result
+    return my_username, result, my_nickname
     
 def checkDCCap(dcs,stores_vol,result):
     checkit = {}
@@ -120,8 +121,8 @@ def checkDCCap(dcs,stores_vol,result):
     return err_dc_constr
     
 def checkUniqueAssign(store_ids,dc_ids,result):
-    """ Create a dictionary frequency histogram of the DC data in result and ensure that the 
-    length of the dictionary matches the length of dc_ids and that each key in the dictionary is in dc_ids"""
+    ''' Create a dictionary frequency histogram of the DC data in result and ensure that the 
+    length of the dictionary matches the length of dc_ids and that each key in the dictionary is in dc_ids '''
     err_dc_key = False 
     err_store_key = False 
     err_mult_assign = False
