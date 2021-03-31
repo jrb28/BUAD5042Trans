@@ -179,7 +179,7 @@ for problem_id in problems:
     store_ids = getDBDataListEle('CALL spGetStoreIDs(%s)' % str(problem_id))  # Creates a list of store_id keys
     dc_ids = getDBDataListEle('CALL spGetDCIDs(%s)' % str(problem_id))        # creates a list if dc_id keys
     """
-    my_team_or_name, result = trans(dist, dcs, stores_vol)
+    my_team_or_name, result, nickname = trans(dist, dcs, stores_vol)
     print(result)
     
     okStoresAssigned, err_mess = checkUniqueAssign(store_ids,dc_ids,result)
