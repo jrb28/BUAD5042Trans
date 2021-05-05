@@ -179,7 +179,7 @@ for problem_id in problems:
     store_ids = getDBDataListEle('CALL spGetStoreIDs(%s)' % str(problem_id))  # Creates a list of store_id keys
     dc_ids = getDBDataListEle('CALL spGetDCIDs(%s)' % str(problem_id))        # creates a list if dc_id keys
     """
-    my_team_or_name, result, nickname = trans(dist.copy(), dcs.copy(), [[x[0], x[1]] for x in stores_vol])
+    my_team_or_name, result, nickname = trans(dist.copy(), dcs.copy(), [[store_id,vol] for store_id,vol in stores_vol])
     print(result)
     
     okStoresAssigned, err_mess = checkUniqueAssign(store_ids,dc_ids,result)
@@ -188,36 +188,23 @@ for problem_id in problems:
         obj = calcAnnualMiles(stores_vol,dist,result)
     else:
         obj = 99999999999999999.0
+    
     if silent_mode:
         if okStoresAssigned or okCap:
-            print("P",problem_id," error: ")
+            print("Problem",problem_id,"error: ", end = '')
             if okStoresAssigned:
-                print('; error with keys or multiple assignment')
+                print('; Either invalid DC/Store IDs, some stores are unassigned, or stores assigned to multiple DCs')
             if okCap:
-                print('; exceeded DC capacity')
+                print('; DC capacity exceeded in at least one DC')
         else:
-            print("P",problem_id,"OK, annual miles:", obj)
+            print("Problem",problem_id," solution is feasible.  Annual miles:", obj)
     else:
         if okStoresAssigned or okCap:
-            print("Problem",problem_id," error: ")
+            print("Problem",problem_id,"error: ", end = '')
             if okStoresAssigned:
-                print('either with keys or assignment of stores to multiple DCs')
-                print(err_mess)
+                print('; Either invalid DC/Store IDs, some stores are unassigned, or stores assigned to multiple DCs')
             if okCap:
-                print('DC capacity exceeded')
+                print('; DC capacity exceeded in at least one DC')
         else:
-            print("Problem",problem_id," OK, annual miles:", obj)
+            print("Problem",problem_id," solution is feasible.  Annual miles:", obj)
             
-            
-
-    
-    
-    
-
-            
-
-
-                
-        
-    
-     
