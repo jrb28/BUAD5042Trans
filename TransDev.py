@@ -5,7 +5,8 @@ Created on Sun Mar 19 21:24:59 2017
 @author: jrbrad
 """
 
-import mysql.connector as mySQL 
+import mysql.connector as mySQL
+import re
 
 mysql_user_name =  'XXX'
 mysql_password = 'XXX'
@@ -161,7 +162,30 @@ def calcAnnualMiles(stores_vol,dist,result):    #dist key = (dc,store); result t
     for assign in result:
         tot_miles += stores_vol_dict[assign[0]] / trail_cu_ft * dist[assign[1],assign[0]] * num_days_year
     return tot_miles      
-            
+
+def print_find(f_name):
+    #print(__file__)
+    f_name = f_name[:]
+    f_name = f_name.replace('()','')
+    
+    with open(__file__, 'r') as f:
+        code = f.readlines()
+        
+    i = 0
+    while not re.search('def\s'+f_name,code[i]) and i < len(code) - 1:
+        i += 1
+    if i == len(code) - 1:
+        msg = 'Function %s() is missing from this code' % f_name
+    else:
+        i += 1
+        msg = ''
+        while re.search('^\s+', code[i]):
+            if not re.search('\s+#', code[i]) and re.search('print\(', code[i]):
+                #print('Please remove or comment out the print statement in your function code before submission:', code[i])
+                msg += 'Please remove or comment out the print statement in your %s() function code before submission: %s\n' % (f_name, code[i].strip(),)
+            i += 1
+    
+    return msg
             
             
 silent_mode = False
@@ -208,3 +232,6 @@ for problem_id in problems:
         else:
             print("Problem",problem_id," solution is feasible.  Annual miles:", obj)
             
+msg = print_find('trans')
+if msg:
+    print('\n\n' + msg)
